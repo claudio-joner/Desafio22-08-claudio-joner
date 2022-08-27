@@ -125,35 +125,46 @@ namespace MiprimeraApi.Repository
 
             return resultado;
         }
-
-
         public static bool EliminarProducto(int id)
         {
-            bool resultado = false;
+            
             using (SqlConnection sqlConnection = new SqlConnection(ConnectionString))
             {
-                string queryProductoVenta = "DELETE FROM ProductoVendido WHERE IdProducto = @id";
-                string queryProducto = "DELETE FROM ProductoVendido WHERE Id = @id";
-
-                SqlParameter sqlParameter = new SqlParameter("id", SqlDbType.Int) { Value = id };
-               
-
-                sqlConnection.Open();
-
-                using (SqlCommand sqlCommand = new SqlCommand(queryProducto, sqlConnection))
+                using (SqlCommand sqlCommand = new SqlCommand())
                 {
-                    sqlCommand.Parameters.Add(sqlParameter);
-                    int numberOfRows = sqlCommand.ExecuteNonQuery();
-                    if (numberOfRows > 0)
+                    sqlCommand.Connection = sqlConnection;
+
+                    sqlCommand.Connection.Open();
+
+                    sqlCommand.CommandText = "DELETE FROM ProductoVendido WHERE IdProducto = @ID";
+                    sqlCommand.Parameters.AddWithValue("@ID", id);
+                    int recordsAffected = sqlCommand.ExecuteNonQuery();
+                    sqlCommand.CommandText = "DELETE FROM Producto WHERE Id = @idProducto";
+                    sqlCommand.Parameters.AddWithValue("@idProducto", id);
+                    recordsAffected = sqlCommand.ExecuteNonQuery();
+
+                    sqlCommand.Connection.Close();
+                    if (recordsAffected != 1)
+
                     {
-                        resultado = true;
+
+                        return   false;
+
                     }
 
+                    else
+
+                    {
+
+                        return  true;
+
+                    }
+                   
                 }
-                sqlConnection.Close();
+                
             }
 
-            return resultado;
+            
         }
     }
 }

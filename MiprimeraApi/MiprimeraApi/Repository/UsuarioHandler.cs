@@ -115,7 +115,7 @@ namespace MiprimeraApi.Repository
             bool resultado = false;
             using (SqlConnection sqlConnection = new SqlConnection(ConnectionString))
             {
-                string queryInsert = "UPDATE usuario SET Nombre = @nombre , Apellido = @apellido , NombreUsuario = @nombreUsuario , Contraseña = @contraseña , Mail = @mail WHERE Id = @id ";
+                string queryInsert = "UPDATE Usuario SET Nombre = @nombre , Apellido = @apellido , NombreUsuario = @nombreUsuario , Contraseña = @contraseña , Mail = @mail WHERE Id = @id ";
 
                 SqlParameter nombreParameter = new SqlParameter("nombre", SqlDbType.VarChar) { Value = usuario.Nombre };
                 SqlParameter apellidoParameter = new SqlParameter("apellido", SqlDbType.VarChar) { Value = usuario.Apellido };
@@ -128,6 +128,7 @@ namespace MiprimeraApi.Repository
 
                 using (SqlCommand sqlCommand = new SqlCommand(queryInsert, sqlConnection))
                 {
+
                     sqlCommand.Parameters.Add(nombreParameter);
                     sqlCommand.Parameters.Add(apellidoParameter);
                     sqlCommand.Parameters.Add(nombreUsuarioParameter);
@@ -148,6 +149,8 @@ namespace MiprimeraApi.Repository
 
             return resultado;
         }
+
+
     }
 }
 
