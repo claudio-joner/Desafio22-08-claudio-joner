@@ -10,10 +10,10 @@ namespace MiprimeraApi.Controllers
     public class VentaController : ControllerBase
     {
         [HttpPost]
-        public bool AgregarVenta([FromBody] List<PostProducto> postProducto)
+        public bool AgregarVenta([FromBody] PostProductoVendido postProducto)
         {
-            
-            return VentaHandler.CargarVenta(postProducto);
+            List<ProductoVendido> ventaList = new List<ProductoVendido>();
+            return VentaHandler.CargarVenta(ventaList);
 
         }
 
