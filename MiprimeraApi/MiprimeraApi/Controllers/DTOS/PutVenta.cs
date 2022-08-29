@@ -1,7 +1,8 @@
 ﻿namespace MiprimeraApi.Controllers.DTOS
 {
-    public class PostVenta
+    public class PutVenta
     {
+        public int Id { get; set; }
         public string Comentarios { get; set; }
     }
 }

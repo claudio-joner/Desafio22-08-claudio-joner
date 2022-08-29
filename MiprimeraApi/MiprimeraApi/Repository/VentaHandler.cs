@@ -1,4 +1,5 @@
-﻿using MiprimeraApi.Model;
+﻿using MiprimeraApi.Controllers.DTOS;
+using MiprimeraApi.Model;
 using System.Data;
 using System.Data.SqlClient;
 
@@ -9,7 +10,7 @@ namespace MiprimeraApi.Repository
         public const string ConnectionString = "Server=DESKTOP-6KIGGOG\\SQLEXPRESS;Database=SistemaGestion;Trusted_Connection=True";
         
 
-        public static bool CargarVenta(List<ProductoVendido> listaProductoVendidos, int id)
+        public static bool CargarVenta(List<ProductoVendido> listaDeProductos)
         {
             
             using (SqlConnection sqlConnection = new SqlConnection(ConnectionString))
@@ -20,21 +21,16 @@ namespace MiprimeraApi.Repository
                     sqlCommand.Connection = sqlConnection;
 
                     sqlCommand.Connection.Open();
-
-                    Venta venta = new Venta();
-                    int largo = listaProductoVendidos.Count;
-                 
+                    
+                    string lista = Convert.ToString(listaDeProductos);
                     sqlCommand.CommandText = "INSERT INTO Venta (Comentarios) VALUES ( @comentarios );";
-                    SqlParameter comentariosParameter = new SqlParameter("comentarios", SqlDbType.VarChar) { Value = Convert.ToString(listaProductoVendidos) };
+                    SqlParameter comentariosParameter = new SqlParameter("comentarios", SqlDbType.VarChar) { Value = lista };
                     int recordsAffected = sqlCommand.ExecuteNonQuery();
 
-                    foreach (ProductoVendido elemento in listaProductoVendidos)
+                    foreach(var productoVendido in listaDeProductos)
                     {
-                        ProductoVendidoHandler.AgregarProductoVendido(elemento);
+                        ProductoVendidoHandler.CrearProductoVendido(productoVendido);
                     }
-
-                    
-
 
                     sqlCommand.Connection.Close();
                     if (recordsAffected != 1)
@@ -60,5 +56,102 @@ namespace MiprimeraApi.Repository
             
         }
 
+        public static bool CrearVenta(Venta venta)
+        {
+            bool resultado = false;
+            using (SqlConnection sqlConnection = new SqlConnection(ConnectionString))
+            {
+                using (SqlCommand sqlCommand = new SqlCommand())
+                {
+                    sqlCommand.Connection = sqlConnection;
+
+                    sqlCommand.Connection.Open();
+                 
+                    sqlCommand.CommandText = "INSERT INTO Venta (Comentarios) VALUES ( @comentarios );";
+                    SqlParameter comentariosParameter = new SqlParameter("comentarios", SqlDbType.VarChar) { Value = venta.Comentarios };
+                    int recordsAffected = sqlCommand.ExecuteNonQuery();
+
+                    sqlCommand.Connection.Close();
+                    
+                    if (recordsAffected != 1)
+                    {
+                        return resultado = false ;
+                    }
+
+                    else
+                    {
+                        return resultado = true;
+                    }
+                }
+
+                sqlConnection.Close();
+            }
+        }
+
+        public static bool EliminarVenta(int id)
+        {
+            bool resultado = false;
+            using (SqlConnection sqlConnection = new SqlConnection(ConnectionString))
+            {
+                string queydelete = "DELETE FROM Venta WHERE Id = @id";
+
+                SqlParameter sqlParameter = new SqlParameter("id", System.Data.SqlDbType.BigInt);
+                sqlParameter.Value = id;
+
+                sqlConnection.Open();
+
+                using (SqlCommand sqlCommand = new SqlCommand(queydelete, sqlConnection))
+                {
+                    sqlCommand.Parameters.Add(sqlParameter);
+                    int numberOfRows = sqlCommand.ExecuteNonQuery();
+                    if (numberOfRows > 0)
+                    {
+                        resultado = true;
+                    }
+
+                }
+                sqlConnection.Close();
+
+                return resultado;
+            }
+
+            
+    }
+
+        public static bool ModificarVenta(Venta venta)
+        {
+            bool resultado = false;
+            using (SqlConnection sqlConnection = new SqlConnection(ConnectionString))
+            {
+                string queryInsert = "UPDATE Venta SET Comentarios = @comentario ";
+
+                SqlParameter comentarioParameter = new SqlParameter("comentario", SqlDbType.VarChar) { Value = venta.Comentarios };
+
+                sqlConnection.Open();
+
+                using (SqlCommand sqlCommand = new SqlCommand(queryInsert, sqlConnection))
+                {
+
+                    sqlCommand.Parameters.Add(comentarioParameter);
+
+
+                    int numberOfRows = sqlCommand.ExecuteNonQuery(); // Se ejecuta la sentencia sql
+
+                    if (numberOfRows > 0)
+                    {
+                        resultado = true;
+                    }
+                }
+
+                sqlConnection.Close();
+            }
+
+            return resultado;
+        }
+
     }
 }
+
+    
+     
+    

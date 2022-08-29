@@ -10,34 +10,40 @@ namespace MiprimeraApi.Repository
         public const string ConnectionString = "Server=DESKTOP-6KIGGOG\\SQLEXPRESS;Database=SistemaGestion;Trusted_Connection=True";
 
 
-        public static bool AgregarProductoVendido(ProductoVendido productoVendido)
+        public static bool CrearProductoVendido(ProductoVendido productoVendido)
         {
             bool resultado = false;
             using (SqlConnection sqlConnection = new SqlConnection(ConnectionString))
             {
-                string queryInsert = "INSERT INTO ProductoVendido " +
-                    "(Stock, IdProducto , IdVenta) VALUES " +
-                    "(@stock, @idproducto , @idventa );";
-
-                SqlParameter stockParameter = new SqlParameter("stock", SqlDbType.Int) { Value = productoVendido.Stock };
-                SqlParameter IdProductoParameter = new SqlParameter("idproducto", SqlDbType.Int) { Value = productoVendido.IdProducto };
-                SqlParameter idVentaParameter = new SqlParameter("idventa", SqlDbType.Int) { Value = productoVendido.IdVenta};
-
-                sqlConnection.Open();
-
-                using (SqlCommand sqlCommand = new SqlCommand(queryInsert, sqlConnection))
+                
+                using (SqlCommand sqlCommand = new SqlCommand())
                 {
+                    sqlCommand.Connection = sqlConnection;
+
+                    sqlConnection.Open();
+
+                    //Agregar los productos vendidos.
+                    sqlCommand.CommandText = "INSERT INTO ProductoVendido (Stock, IdProducto , IdVenta) VALUES (@stock, @idproducto , @idventa );";
+                    
+                    SqlParameter stockParameter = new SqlParameter("stock", SqlDbType.Int) { Value = productoVendido.Stock };
+                    SqlParameter IdProductoParameter = new SqlParameter("idproducto", SqlDbType.Int) { Value = productoVendido.IdProducto };
+                    SqlParameter idVentaParameter = new SqlParameter("idventa", SqlDbType.Int) { Value = productoVendido.IdVenta };
                     sqlCommand.Parameters.Add(stockParameter);
                     sqlCommand.Parameters.Add(IdProductoParameter);
                     sqlCommand.Parameters.Add(idVentaParameter);
-                    
+                    int recordsAffected = sqlCommand.ExecuteNonQuery();
 
-                    int numberOfRows = sqlCommand.ExecuteNonQuery(); // Se ejecuta la sentencia sql
+                    //Actualiza el stock de la tabla Productos.
+                    sqlCommand.CommandText = "UPDATE Producto SET Producto.Stock = Producto.Stock - ProductoVendido.Stock " +
+                        "FROM Producto INNER JOIN ProductoVendido on(Producto.Id = ProductoVendido.IdProducto)";
+                    recordsAffected = sqlCommand.ExecuteNonQuery();
 
-                    if (numberOfRows > 0)
+                    if (recordsAffected > 0)
                     {
                         resultado = true;
                     }
+
+                   
                 }
 
                 sqlConnection.Close();
